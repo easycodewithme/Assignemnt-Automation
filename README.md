@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grievance Router: Smart Collectorate prototype
 
-## Getting Started
+A working proof for one use case from the **Smart Collectorate** proposal (Creditfix Group, AI Engineer assessment).
+A citizen files a grievance in Hindi, English or Hinglish. The system gives it a tracking number, and AI suggests the
+department, urgency and a one-line summary. **A person checks anything the AI is unsure about.**
 
-First, run the development server:
+![DM dashboard](docs/dashboard.png)
+
+## What it shows
+
+| Screen | Who | What it does |
+|---|---|---|
+| `/submit` | Citizen | File a grievance and get a tracking ID, department, urgency and deadline at once |
+| `/track` | Citizen | Check status by tracking ID (in production this would also go out by SMS and WhatsApp) |
+| `/review` | Clerk | Cases where the AI was under 70% sure. The clerk confirms or corrects; every decision is logged |
+| `/cases` | Officer | Department queue sorted by deadline, with overdue cases flagged. Start work and resolve |
+| `/dashboard` | DM | Open, overdue, awaiting review, average days to resolve, auto-routed %, departments ranked worst first |
+
+## How the AI step works (`lib/classify.ts`)
+
+1. **Mask personal data first** (`lib/mask.ts`). Aadhaar, mobile numbers and emails become `[AADHAAR]`, `[PHONE]` and `[EMAIL]` before any text leaves the server.
+2. **Ask the LLM for strict JSON.** The prompt lists a **fixed set of departments** with examples, defines urgency and asks for an honest confidence score.
+3. **Validate the answer.** If the department is not on the list, it becomes `OTHER` and confidence is capped. Confidence is clamped to 0–1, and an unknown urgency defaults to medium.
+4. **Human in the loop.** If confidence is below `0.7` or the department is `OTHER`, the case goes to `needs_review` instead of being routed automatically.
+5. **Fallback.** If there is no API key, the AI times out or the answer can't be parsed, a Hindi/English keyword classifier (`lib/keyword.ts`) takes over and the case is sent for review. The office never stops because the AI is down.
+
+The AI only **suggests**. It never closes, rejects or replies to a case.
+
+### Where AI is used and where it isn't
+
+- **LLM:** understanding free-text Hindi, English and Hinglish, picking a department and urgency, writing a neutral one-line summary, extracting location and scheme.
+- **Plain code:** tracking IDs, deadlines (SLA days per department), status changes, the audit trail, dashboards. Rules are cheaper, predictable and easy to audit.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local      # optional: add ONE API key
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Supported providers (plain `fetch`, no SDKs):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Env var | Default model |
+|---|---|
+| `ANTHROPIC_API_KEY` | `claude-haiku-5-5` |
+| `OPENAI_API_KEY` | `gpt-4o-mini` |
+| `GEMINI_API_KEY` | `gemini-2.5-flash` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use `LLM_PROVIDER` to force a provider and `LLM_MODEL` to override the model. **With no key, the app runs on the keyword fallback,** so the demo always works.
 
-## Learn More
+## Evaluation
 
-To learn more about Next.js, take a look at the following resources:
+`eval/cases.json` holds 20 labelled grievances: Hindi, English and Hinglish, including vague and multi-department cases.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+python eval/run_eval.py http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+A case counts as correct if it is auto-routed to the right department, or sent to human review when it is vague or ambiguous.
 
-## Deploy on Vercel
+| Engine | Correct | Auto-routed | **Wrongly auto-routed** |
+|---|---|---|---|
+| Keyword fallback (no AI) | 18 / 20 (90%) | 15 / 20 | **0** |
+| LLM | run with your key | | |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+"Wrongly auto-routed" is the metric that matters most: a wrong department wastes days. A case sent to review only costs a clerk a few seconds.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Design decisions
+
+- **Next.js (App Router) + TypeScript.** One codebase for the UI and the API route, and easy to deploy.
+- **Demo data lives in the browser (`localStorage`)**, seeded with 25 realistic cases, so there is no database to set up. Use "Reset demo data" on the dashboard to start over.
+- **The department list and SLA days** (`lib/departments.ts`) are assumptions. In the real project they are agreed with the office during discovery.
+- **The keyword classifier matches whole words,** so "जल" (water) does not match inside "बिजली" (electricity), and "fir" does not match "first".
+
+## What production would add
+
+- PostgreSQL with an **append-only audit table**, an object store for scanned documents, and hosting on NIC or a MeitY-empanelled cloud in India.
+- OTP login and role-based access (citizen, clerk, officer, DM). Officers see only their own department.
+- WhatsApp Business API and an SMS gateway for intake and status updates. Bhashini for speech and translation.
+- A connector that pushes cases into CPGRAMS or the state IGRS portal, so this tool fills gaps instead of replacing those systems.
+- Monthly accuracy and bias review using the clerk corrections that are already logged.
+
+---
+Hypothetical case study. All names and grievances are made up.
