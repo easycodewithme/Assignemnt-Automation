@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Lexend, Noto_Sans } from "next/font/google";
 import { ShieldCheck } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import "./globals.css";
 
-const heading = Lexend({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-heading", display: "swap" });
-const body = Noto_Sans({ subsets: ["latin", "devanagari"], weight: ["400", "500", "600", "700"], variable: "--font-body", display: "swap" });
+const FONTS = "https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap";
 
 export const metadata: Metadata = {
   title: "Grievance Router – Smart Collectorate demo",
@@ -15,7 +13,13 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${heading.variable} ${body.variable}`}>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link rel="stylesheet" href={FONTS} />
+      </head>
       <body className="flex min-h-screen flex-col antialiased">
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-teal focus:shadow">
           Skip to content

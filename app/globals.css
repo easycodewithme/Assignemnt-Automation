@@ -17,8 +17,8 @@
   --color-muted: #51636a;          /* 6:1 on white (was 4.3:1) */
   --color-line: #d9e3e2;
   --color-canvas: #f4f7f7;
-  --font-sans: var(--font-body), "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif;
-  --font-display: var(--font-heading), var(--font-body), system-ui, sans-serif;
+  --font-sans: "Noto Sans", "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif;
+  --font-display: "Lexend", "Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif;
 }
 
 body {
