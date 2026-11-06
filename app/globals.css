@@ -1,48 +1,80 @@
 @import "tailwindcss";
 
+/* Design system: "Accessible & Ethical" (government / public service).
+   Brand teal + saffron kept from the proposal deck. Text colours meet WCAG AA (4.5:1). */
 @theme {
-  --color-ink: #1b2a2f;
+  --color-ink: #13232a;
   --color-teal: #0f4c4a;
-  --color-teal-soft: #eaf2f1;
-  --color-saffron: #e2791f;
-  --color-danger: #b23a48;
-  --color-muted: #6b7c80;
-  --font-sans: "Segoe UI", "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif;
+  --color-teal-dark: #0a3634;
+  --color-teal-soft: #e6f0ef;
+  --color-saffron: #a5520c;        /* text-safe saffron */
+  --color-saffron-bright: #e2791f; /* fills and accents only */
+  --color-saffron-soft: #fdf1e6;
+  --color-danger: #a12d3b;
+  --color-danger-soft: #fbecee;
+  --color-success: #1f6b45;
+  --color-success-soft: #e7f4ec;
+  --color-muted: #51636a;          /* 6:1 on white (was 4.3:1) */
+  --color-line: #d9e3e2;
+  --color-canvas: #f4f7f7;
+  --font-sans: var(--font-body), "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif;
+  --font-display: var(--font-heading), var(--font-body), system-ui, sans-serif;
 }
 
 body {
-  background: #f7faf9;
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; line-height: 1.25; }
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 3px solid var(--color-saffron-bright);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
 @utility card {
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   background: #fff;
-  border: 1px solid var(--color-slate-200);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  border: 1px solid var(--color-line);
+  box-shadow: 0 1px 2px rgb(15 76 74 / 0.04), 0 1px 3px rgb(15 76 74 / 0.06);
 }
 @utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  min-height: 2.75rem; /* 44px touch target */
+  border-radius: 0.625rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 @utility btn-primary {
-  @apply btn bg-teal text-white hover:bg-teal/90;
+  @apply btn bg-teal text-white shadow-sm hover:bg-teal-dark;
 }
 @utility btn-ghost {
-  @apply btn border border-slate-300 bg-white hover:bg-slate-50;
+  @apply btn border border-line bg-white text-ink hover:border-teal hover:bg-teal-soft;
 }
 @utility input {
-  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-teal focus:ring-2 focus:ring-teal/20;
+  @apply w-full rounded-[0.625rem] border border-slate-300 bg-white px-3 py-2.5 text-base text-ink placeholder:text-slate-500 transition-colors outline-none hover:border-slate-400 focus:border-teal focus:ring-3 focus:ring-teal/20;
+}
+@utility field-label {
+  @apply block text-sm font-semibold text-ink;
 }
 @utility pill {
-  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
+}
+@utility eyebrow {
+  @apply text-xs font-semibold tracking-wider text-saffron uppercase;
 }
