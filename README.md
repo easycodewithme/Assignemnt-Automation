@@ -83,3 +83,7 @@ A case counts as correct if it is auto-routed to the right department, or sent t
 
 ---
 Hypothetical case study. All names and grievances are made up.
+
+## Presentation
+
+The proposal deck is in [`presentation/`](presentation/) (PPTX and PDF).
