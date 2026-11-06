@@ -1,5 +1,7 @@
 # Grievance Router: Smart Collectorate prototype
 
+**Live demo:** https://smart-collectorate-grievance-router.vercel.app
+
 A working proof for one use case from the **Smart Collectorate** proposal (Creditfix Group, AI Engineer assessment).
 A citizen files a grievance in Hindi, English or Hinglish. The system gives it a tracking number, and AI suggests the
 department, urgency and a one-line summary. **A person checks anything the AI is unsure about.**
