@@ -43,7 +43,7 @@ Supported providers (plain `fetch`, no SDKs):
 
 | Env var | Default model |
 |---|---|
-| `ANTHROPIC_API_KEY` | `claude-haiku-5-5` |
+| `ANTHROPIC_API_KEY` | `claude-sonnet-5-5` |
 | `OPENAI_API_KEY` | `gpt-4o-mini` |
 | `GEMINI_API_KEY` | `gemini-2.5-flash` |
 
@@ -62,7 +62,7 @@ A case counts as correct if it is auto-routed to the right department, or sent t
 | Engine | Correct | Auto-routed | **Wrongly auto-routed** |
 |---|---|---|---|
 | Keyword fallback (no AI) | 18 / 20 (90%) | 15 / 20 | **0** |
-| LLM | run with your key | | |
+| LLM (Claude Sonnet 5.5) | **20 / 20 (100%)** | 17 / 20 | **0** |
 
 "Wrongly auto-routed" is the metric that matters most: a wrong department wastes days. A case sent to review only costs a clerk a few seconds.
 
