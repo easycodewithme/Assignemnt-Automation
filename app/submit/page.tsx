@@ -11,6 +11,7 @@ const EXAMPLES = [
   { tag: "Hindi", text: "हमारे गांव का ट्रांसफार्मर 5 दिन से जला हुआ है, बिजली नहीं है। मेरा नंबर 9876543210 है।" },
   { tag: "Hinglish", text: "Kotedar ne is mahine ka ration nahi diya, bolta hai stock khatam. Card number 1234 5678 9012." },
   { tag: "English", text: "My father's old age pension stopped after March. Village Kheda, block Milak. Please help urgently." },
+  { tag: "Several problems", text: "Meri gali mein sewer overflow ho raha hai, isliye paani nahi aa raha, aur bijli bhi baar-baar ja rahi hai." },
   { tag: "Vague", text: "Please look into my matter, nobody is listening at the office." },
 ];
 const BLOCKS = ["Sadar", "Bilaspur", "Milak", "Rampur", "Shahabad", "Swar"];
@@ -21,7 +22,7 @@ export default function SubmitPage() {
   const [form, setForm] = useState({ citizenName: "", phone: "", block: BLOCKS[0], text: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ g: Grievance; warning?: string } | null>(null);
+  const [result, setResult] = useState<{ g: Grievance; parts: Grievance[]; warning?: string } | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,8 +34,8 @@ export default function SubmitPage() {
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Something went wrong");
       const { warning, ...ai } = data as Classification & { warning?: string };
-      const g = add(form, ai);
-      setResult({ g, warning });
+      const [g, ...parts] = add(form, ai);
+      setResult({ g, parts, warning });
       setForm((f) => ({ ...f, text: "" }));
     } catch (err) {
       setError((err as Error).message);
@@ -123,13 +124,13 @@ export default function SubmitPage() {
             <div className="h-4 w-2/3 animate-pulse rounded bg-slate-200" />
           </div>
         )}
-        {result && <ResultCard g={result.g} warning={result.warning} />}
+        {result && <ResultCard g={result.g} parts={result.parts} warning={result.warning} />}
       </aside>
     </div>
   );
 }
 
-function ResultCard({ g, warning }: { g: Grievance; warning?: string }) {
+function ResultCard({ g, parts, warning }: { g: Grievance; parts: Grievance[]; warning?: string }) {
   const ai = g.ai;
   const [copied, setCopied] = useState(false);
   return (
@@ -156,6 +157,21 @@ function ResultCard({ g, warning }: { g: Grievance; warning?: string }) {
           {ai.scheme && (<><dt className="text-muted">Scheme</dt><dd>{ai.scheme}</dd></>)}
           <dt className="text-muted">Language</dt><dd>{ai.language}</dd>
           <dt className="text-muted">Deadline</dt><dd>{new Date(g.dueAt).toLocaleDateString("en-IN", { dateStyle: "medium" })} ({DEPT_BY_ID[g.department].slaDays} days)</dd>
+          {(ai.also?.length ?? 0) > 0 && (<>
+            <dt className="text-muted">{parts.length ? "Joint case" : "Also found"}</dt>
+            <dd>
+              <ul className="space-y-1.5">
+                {(parts.length ? parts.map((p) => ({ id: p.id, department: p.department, summary: p.ai.summary })) : ai.also!.map((a) => ({ id: "", ...a }))).map((p) => (
+                  <li key={p.department} className="rounded-md bg-teal-soft px-2.5 py-1.5">
+                    {p.id && <span className="mr-1.5 font-mono text-xs font-semibold text-teal">{p.id}</span>}
+                    <span className="font-semibold">{DEPT_BY_ID[p.department].name}</span>
+                    <span className="block text-xs text-slate-700">{p.summary}</span>
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-1.5 block text-xs text-muted">{parts.length ? `${DEPT_BY_ID[g.department].name} leads. One tracking ID for the citizen; it closes when every part is fixed.` : "A clerk confirms the split before it is sent."}</span>
+            </dd>
+          </>)}
           <dt className="text-muted">Engine</dt><dd className="font-mono text-xs break-all">{ai.source}</dd>
         </dl>
         <details className="rounded-lg border border-line text-sm">

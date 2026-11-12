@@ -19,12 +19,17 @@ Pick exactly ONE department id from this list. Never invent a new one. If it is 
 ${deptList}
 
 Urgency: "high" = risk to life, safety, food or health, or violence/threats; "medium" = normal service failure; "low" = suggestion or minor issue.
-confidence = your honest probability (0 to 1) that the department is correct. Use below 0.7 if the text is vague, mentions several departments, or you are guessing.
+Several problems in one complaint: if the text describes SEPARATE problems that need DIFFERENT departments
+(e.g. sewer overflow + no water + power cuts), put the main or root-cause problem's department in "department"
+and list each other problem in "also" (one entry per extra department, never repeating "department").
+Otherwise "also" is [].
+confidence = your honest probability (0 to 1) that the main department is correct. Use below 0.7 if the text is vague or you are guessing.
 
 Reply with ONLY a JSON object, no other text:
 {"department": "<ID>", "category": "<short category in English>", "urgency": "high|medium|low",
  "summary": "<one neutral sentence in English for the officer>", "location": "<village/block/ward or null>",
- "scheme": "<government scheme named, or null>", "confidence": <0-1>, "reason": "<one short sentence: why this department>"}`;
+ "scheme": "<government scheme named, or null>", "confidence": <0-1>, "reason": "<one short sentence: why this department>",
+ "also": [{"department": "<ID>", "summary": "<one sentence>"}]}`;
   return { system, user: `Grievance:\n"""\n${maskedText}\n"""` };
 }
 
@@ -57,7 +62,7 @@ async function callLLM(provider: Provider, key: string, model: string, system: s
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST", signal,
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model, max_tokens: 300, system, messages: [{ role: "user", content: user }] }),
+      body: JSON.stringify({ model, max_tokens: 450, system, messages: [{ role: "user", content: user }] }),
     });
     if (!r.ok) throw new Error(`Anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
     const j = await r.json();
@@ -118,7 +123,16 @@ export async function classifyGrievance(text: string): Promise<Classification & 
     if (!validDept) confidence = Math.min(confidence, 0.3);
     const urgency: Urgency = ["high", "medium", "low"].includes(out.urgency as string) ? (out.urgency as Urgency) : "medium";
 
+    // Guardrail for joint cases: only known departments, no duplicates, never OTHER.
+    const seen = new Set<string>([department]);
+    const also = (Array.isArray(out.also) ? out.also : [])
+      .map((a) => a as { department?: unknown; summary?: unknown })
+      .filter((a) => isDepartmentId(a.department) && a.department !== "OTHER" && !seen.has(a.department as string) && seen.add(a.department as string))
+      .slice(0, 3)
+      .map((a) => ({ department: a.department as DepartmentId, summary: str(a.summary) ?? DEPT_BY_ID[a.department as DepartmentId].name }));
+
     return {
+      also,
       department,
       category: str(out.category) ?? DEPT_BY_ID[department].name,
       urgency,

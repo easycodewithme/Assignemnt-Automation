@@ -17,6 +17,8 @@ export interface Classification {
   needsReview: boolean;
   source: string; // e.g. "llm:anthropic/claude-haiku-5-5" or "keyword-fallback"
   maskedText: string; // the exact text that was sent to the AI
+  /** Extra problems in the same complaint that belong to other departments (joint case). */
+  also?: { department: DepartmentId; summary: string }[];
 }
 
 export interface HistoryEntry {
@@ -38,4 +40,30 @@ export interface Grievance {
   ai: Classification;
   resolvedAt?: string;
   history: HistoryEntry[];
+  // ---- internal communication ----
+  /** Set on the extra parts of a joint case: the tracking ID the citizen holds. */
+  jointId?: string;
+  notes?: Note[];
+  requests?: DeptRequest[];
+  transfers?: number;
+  /** A second transfer waits for ADM approval (stops ping-pong between departments). */
+  pendingTransfer?: { to: DepartmentId; reason: string; by: DepartmentId; at: string };
 }
+
+export interface Note { at: string; by: string; text: string }
+
+/** One department asks another for a report / NOC / site visit, with a deadline. */
+export interface DeptRequest {
+  id: string;
+  at: string;
+  from: DepartmentId;
+  to: DepartmentId;
+  ask: string;
+  dueAt: string;
+  status: "open" | "answered";
+  reply?: string;
+  answeredAt?: string;
+}
+
+/** Circular from the DM office to departments, with acknowledgements. */
+export interface Circular { id: string; at: string; title: string; body: string; to: DepartmentId[]; acks: Partial<Record<DepartmentId, string>> }

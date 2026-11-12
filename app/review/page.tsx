@@ -17,15 +17,18 @@ export default function ReviewPage() {
         <span className="pill bg-saffron-soft px-3 py-1 text-sm text-saffron">{queue.length} waiting</span>
       </PageHeader>
       {queue.length === 0 && <div className="card"><EmptyState icon={CheckCheck} title="Nothing to review" body="All grievances have been routed. New unclear cases will appear here." /></div>}
-      {queue.map((g) => <ReviewItem key={g.id} g={g} onRoute={(d) => route(g.id, d)} />)}
+      {queue.map((g) => <ReviewItem key={g.id} g={g} onRoute={(d, parts) => route(g.id, d, parts)} />)}
     </div>
   );
 }
 
-function ReviewItem({ g, onRoute }: { g: Grievance; onRoute: (d: DepartmentId) => void }) {
+type Part = { department: DepartmentId; summary: string };
+function ReviewItem({ g, onRoute }: { g: Grievance; onRoute: (d: DepartmentId, parts: Part[]) => void }) {
   const suggested = g.ai.department;
   const [dept, setDept] = useState<DepartmentId | "">(suggested === "OTHER" ? "" : suggested);
   const selectId = `route-${g.id}`;
+  const also = g.ai.also ?? [];
+  const [keep, setKeep] = useState<Record<string, boolean>>(Object.fromEntries(also.map((a) => [a.department, true])));
   return (
     <article className="card grid overflow-hidden md:grid-cols-[1fr_320px]" aria-label={`Grievance ${g.id}`}>
       <div className="space-y-3 p-5 sm:p-6">
@@ -51,7 +54,18 @@ function ReviewItem({ g, onRoute }: { g: Grievance; onRoute: (d: DepartmentId) =
             {DEPARTMENTS.filter((d) => d.id !== "OTHER").map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         </div>
-        <button className="btn-primary w-full" disabled={!dept} onClick={() => dept && onRoute(dept)}>
+        {also.length > 0 && (
+          <fieldset className="space-y-1.5">
+            <legend className="field-label">More than one problem found. Also send to:</legend>
+            {also.map((a) => (
+              <label key={a.department} className="flex cursor-pointer items-start gap-2 text-sm">
+                <input type="checkbox" className="mt-1 size-4 accent-teal" checked={!!keep[a.department]} onChange={(e) => setKeep({ ...keep, [a.department]: e.target.checked })} />
+                <span><b>{DEPT_BY_ID[a.department].name}</b><span className="block text-xs text-slate-700">{a.summary}</span></span>
+              </label>
+            ))}
+          </fieldset>
+        )}
+        <button className="btn-primary w-full" disabled={!dept} onClick={() => dept && onRoute(dept, also.filter((a) => keep[a.department]))}>
           {!dept ? "Choose a department" : dept === suggested
             ? <><ArrowRight className="size-4" aria-hidden /> Confirm and route</>
             : <><PenLine className="size-4" aria-hidden /> Correct and route</>}

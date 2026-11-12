@@ -32,7 +32,7 @@ export default function Home() {
         </div>
         <div className="card grid grid-cols-2 gap-px overflow-hidden bg-line p-0">
           {[
-            ["20 / 20", "test cases routed correctly by the AI"],
+            ["22 / 22", "test cases routed correctly by the AI, incl. joint cases"],
             ["0", "sent to the wrong department"],
             ["70%", "confidence needed to route without a clerk"],
             ["2", "languages: Hindi and English"],

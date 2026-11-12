@@ -55,5 +55,7 @@ export function keywordClassify(text: string): Omit<Classification, "maskedText"
       : "No department keywords found",
     needsReview: department === "OTHER" || confidence < REVIEW_THRESHOLD,
     source: "keyword-fallback",
+    // Suggest a joint case when a second department also matches; a clerk confirms it.
+    also: top.score > 0 && second.score > 0 ? [{ department: second.d.id, summary: `Also mentions ${DEPT_BY_ID[second.d.id].name.toLowerCase()} problem` }] : [],
   };
 }

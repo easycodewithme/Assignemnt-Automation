@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Check, MessageSquareText, Search, SearchX } from "lucide-react";
-import { useGrievances } from "@/lib/store";
+import { jointParts, useGrievances } from "@/lib/store";
 import { DEPT_BY_ID } from "@/lib/departments";
 import type { Status } from "@/lib/types";
 import { EmptyState, History, Loading, PageHeader, StatusPill } from "@/components/ui";
@@ -51,6 +51,21 @@ export default function TrackPage() {
             <div className="rounded-lg bg-teal-soft p-4"><dt className="text-xs text-muted">Department</dt><dd className="font-semibold text-ink">{g.status === "needs_review" ? "Being checked by our staff" : DEPT_BY_ID[g.department].name}</dd></div>
             <div className="rounded-lg bg-teal-soft p-4"><dt className="text-xs text-muted">Expected by</dt><dd className="font-semibold text-ink">{new Date(g.dueAt).toLocaleDateString("en-IN", { dateStyle: "medium" })}</dd></div>
           </dl>
+          {jointParts(list, g).length > 1 && (
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-ink">Your complaint has {jointParts(list, g).length} parts, each with its own department</h2>
+              <ul className="space-y-2 text-sm">
+                {jointParts(list, g).map((p) => (
+                  <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-line p-3">
+                    <span className="font-semibold text-ink">{DEPT_BY_ID[p.department].name}</span>
+                    <span className="ml-auto"><StatusPill s={p.status} /></span>
+                    <span className="w-full text-slate-700">{p.ai.summary}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted">Your complaint closes only when every part is fixed. You get an SMS as each part is done.</p>
+            </div>
+          )}
           <div>
             <h2 className="mb-3 text-sm font-semibold text-ink">History</h2>
             <History g={g} />

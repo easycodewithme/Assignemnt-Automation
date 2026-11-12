@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardCheck, FilePlus2, Gauge, Landmark, Search, Briefcase } from "lucide-react";
+import { ClipboardCheck, FilePlus2, Gauge, Landmark, Search, Briefcase, MessagesSquare } from "lucide-react";
 
 const CITIZEN = [
   { href: "/submit", label: "File a grievance", icon: FilePlus2 },
@@ -10,6 +10,7 @@ const CITIZEN = [
 const STAFF = [
   { href: "/review", label: "Clerk review", icon: ClipboardCheck },
   { href: "/cases", label: "Officer cases", icon: Briefcase },
+  { href: "/inbox", label: "Dept inbox", icon: MessagesSquare },
   { href: "/dashboard", label: "DM dashboard", icon: Gauge },
 ];
 

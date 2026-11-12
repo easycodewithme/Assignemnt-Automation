@@ -1,14 +1,16 @@
 "use client";
 import { useState } from "react";
-import { CalendarClock, CheckCircle2, ChevronDown, Filter, Inbox, Play } from "lucide-react";
-import { daysLeft, isOverdue, useGrievances } from "@/lib/store";
+import { ArrowRightLeft, CalendarClock, CheckCircle2, ChevronDown, ClipboardList, Filter, GitFork, Inbox, Play } from "lucide-react";
+import { daysLeft, isOverdue, jointParts, openRequests, useGrievances } from "@/lib/store";
+import { Coordination } from "@/components/Coordination";
 import { DEPARTMENTS, DEPT_BY_ID, type DepartmentId } from "@/lib/departments";
 import { EmptyState, History, Loading, PageHeader, StatusPill, UrgencyPill } from "@/components/ui";
 
 const EDGE = { high: "border-l-danger", medium: "border-l-saffron-bright", low: "border-l-slate-300" } as const;
 
 export default function CasesPage() {
-  const { list, update } = useGrievances();
+  const api = useGrievances();
+  const { list, update } = api;
   const [dept, setDept] = useState<DepartmentId | "ALL">("ALL");
   const [showResolved, setShowResolved] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export default function CasesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Officer" title="Department cases" subtitle="Each officer sees their own department. Sorted by deadline, overdue first." />
+      <PageHeader eyebrow="Officer" title="Department cases" subtitle="Each officer sees their own department. Open a case ID to transfer it, ask another department for a report, add a department, or leave a note." />
 
       <div className="card flex flex-wrap items-center gap-3 p-3 sm:p-4">
         <Filter className="size-4 text-muted" aria-hidden />
@@ -55,6 +57,9 @@ export default function CasesPage() {
                 <StatusPill s={g.status} />
                 <UrgencyPill u={g.ai.urgency} />
                 <span className="text-sm text-muted">{DEPT_BY_ID[g.department].name} · {g.block}</span>
+                {jointParts(list, g).length > 1 && <span className="pill bg-blue-50 text-blue-800"><GitFork className="size-3.5" aria-hidden />Joint case{!g.jointId && " · lead"}</span>}
+                {openRequests(g).length > 0 && <span className="pill bg-saffron-soft text-saffron"><ClipboardList className="size-3.5" aria-hidden />Waiting on {DEPT_BY_ID[openRequests(g)[0].to].name}</span>}
+                {g.pendingTransfer && <span className="pill bg-saffron-soft text-saffron"><ArrowRightLeft className="size-3.5" aria-hidden />Transfer awaiting ADM</span>}
                 <span className={`pill ml-auto px-3 py-1 text-sm ${dueCls}`}>
                   <CalendarClock className="size-4" aria-hidden />
                   {g.status === "resolved" ? "Done" : overdue ? `Overdue by ${-left} day(s)` : `${left} day(s) left`}
@@ -64,7 +69,11 @@ export default function CasesPage() {
               {expanded && (
                 <div className="mt-4 space-y-4 rounded-lg bg-slate-50 p-4">
                   <p className="text-sm"><span className="font-semibold text-muted">Original:</span> {g.text}</p>
-                  <History g={g} />
+                  <Coordination g={g} list={list} api={api} />
+                  <details className="rounded-lg border border-line bg-white">
+                    <summary className="cursor-pointer p-3 text-sm font-semibold text-ink">Full audit history</summary>
+                    <div className="border-t border-line p-4"><History g={g} /></div>
+                  </details>
                 </div>
               )}
               {g.status !== "resolved" && (

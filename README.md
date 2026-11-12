@@ -14,9 +14,22 @@ department, urgency and a one-line summary. **A person checks anything the AI is
 |---|---|---|
 | `/submit` | Citizen | File a grievance and get a tracking ID, department, urgency and deadline at once |
 | `/track` | Citizen | Check status by tracking ID (in production this would also go out by SMS and WhatsApp) |
-| `/review` | Clerk | Cases where the AI was under 70% sure. The clerk confirms or corrects; every decision is logged |
-| `/cases` | Officer | Department queue sorted by deadline, with overdue cases flagged. Start work and resolve |
-| `/dashboard` | DM | Open, overdue, awaiting review, average days to resolve, auto-routed %, departments ranked worst first |
+| `/review` | Clerk | Cases where the AI was under 70% sure. The clerk confirms or corrects, and confirms any split into a joint case; every decision is logged |
+| `/cases` | Officer | Department queue sorted by deadline. Open a case to transfer it, request a report from another department, add a department, or leave a note |
+| `/inbox` | Department | Report requests from other departments (reply with a deadline), joint cases, and DM circulars to acknowledge |
+| `/dashboard` | DM / ADM | Open, overdue, waiting on another department, joint cases, auto-routed %; ADM approval of second transfers; circulars with read receipts |
+
+## Internal communication between departments
+
+Delays in a Collectorate are mostly *between* departments, so the hand-offs live inside the case instead of on letters, phone calls and WhatsApp:
+
+- **One complaint, several problems → joint case.** The AI returns the main (root-cause) department plus `also: [...]` for other problems. The citizen keeps one tracking ID (`DM-2026-00026`); each department gets its own part (`-B`, `-C`) with its own deadline. The citizen's track page shows every part.
+- **Transfer with a reason.** The first transfer happens at once; a **second transfer needs ADM approval**, so a case cannot bounce between departments.
+- **Report requests.** Revenue can ask Police for a site report with a deadline. It shows in the Police inbox, turns red when overdue, and the dashboard shows which department is holding others up.
+- **Case notes** replace WhatsApp messages, and **DM circulars** show who has acknowledged them.
+- Every action is written to the case's audit history.
+
+![Coordination panel on a case](docs/coordination.png)
 
 ## How the AI step works (`lib/classify.ts`)
 
@@ -53,25 +66,25 @@ Use `LLM_PROVIDER` to force a provider and `LLM_MODEL` to override the model. **
 
 ## Evaluation
 
-`eval/cases.json` holds 20 labelled grievances: Hindi, English and Hinglish, including vague and multi-department cases.
+`eval/cases.json` holds 22 labelled grievances: Hindi, English and Hinglish, including vague cases and 3 complaints with several problems (joint cases).
 
 ```bash
 python eval/run_eval.py http://localhost:3000
 ```
 
-A case counts as correct if it is auto-routed to the right department, or sent to human review when it is vague or ambiguous.
+A case counts as correct if it is auto-routed to the right department, or sent to human review when it is vague. A joint case is correct only if the main department plus the extra departments are exactly right.
 
 | Engine | Correct | Auto-routed | **Wrongly auto-routed** |
 |---|---|---|---|
-| Keyword fallback (no AI) | 18 / 20 (90%) | 15 / 20 | **0** |
-| LLM (Claude Sonnet 5.5) | **20 / 20 (100%)** | 17 / 20 | **0** |
+| Keyword fallback (no AI) | 19 / 22 (86%) | 15 / 22 | **0** |
+| LLM (Claude Sonnet 5.5) | **22 / 22 (100%)** | 19 / 22 | **0** |
 
 "Wrongly auto-routed" is the metric that matters most: a wrong department wastes days. A case sent to review only costs a clerk a few seconds.
 
 ## Design decisions
 
 - **Next.js (App Router) + TypeScript.** One codebase for the UI and the API route, and easy to deploy.
-- **Demo data lives in the browser (`localStorage`)**, seeded with 25 realistic cases, so there is no database to set up. Use "Reset demo data" on the dashboard to start over.
+- **Demo data lives in the browser (`localStorage`)**, seeded with 26 realistic cases (including a joint case, an overdue report request and a transfer waiting for ADM approval), so there is no database to set up. Use "Reset demo data" on the dashboard to start over.
 - **The department list and SLA days** (`lib/departments.ts`) are assumptions. In the real project they are agreed with the office during discovery.
 - **The keyword classifier matches whole words,** so "जल" (water) does not match inside "बिजली" (electricity), and "fir" does not match "first".
 

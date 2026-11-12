@@ -3,7 +3,7 @@
 
 export type DepartmentId =
   | "REVENUE" | "FOOD" | "RURAL" | "WELFARE" | "POWER"
-  | "WATER" | "HEALTH" | "POLICE" | "EDUCATION" | "ROADS" | "OTHER";
+  | "WATER" | "MUNICIPAL" | "HEALTH" | "POLICE" | "EDUCATION" | "ROADS" | "OTHER";
 
 export interface Department {
   id: DepartmentId;
@@ -43,7 +43,12 @@ export const DEPARTMENTS: Department[] = [
   {
     id: "WATER", name: "Water & Sanitation", nameHi: "जल एवं स्वच्छता विभाग", slaDays: 7,
     examples: "drinking water, broken hand pump, tap connection (Jal Jeevan), blocked drains",
-    keywords: ["water", "hand pump", "handpump", "tap", "drain", "sewer", "पानी", "हैंडपंप", "हैण्डपम्प", "नल", "नाली", "पेयजल", "जल जीवन"],
+    keywords: ["water", "hand pump", "handpump", "tap", "drain", "पानी", "हैंडपंप", "हैण्डपम्प", "नल", "नाली", "पेयजल", "जल जीवन"],
+  },
+  {
+    id: "MUNICIPAL", name: "Municipal Council (Sewer & Sanitation)", nameHi: "नगर पालिका परिषद", slaDays: 5,
+    examples: "town sewer overflow or blockage, garbage not collected, town sanitation (urban areas)",
+    keywords: ["sewer", "sewage", "garbage", "kooda", "nagar palika", "municipal", "सीवर", "कूड़ा", "कचरा", "नगर पालिका"],
   },
   {
     id: "HEALTH", name: "Health", nameHi: "स्वास्थ्य विभाग", slaDays: 7,

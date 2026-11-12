@@ -1,22 +1,90 @@
 [
-  {"text": "हमारे गांव का ट्रांसफार्मर 5 दिन से जला हुआ है, बिजली नहीं है। मेरा नंबर 9876543210 है।", "expect": "POWER"},
-  {"text": "Kotedar ne is mahine ka ration nahi diya, bolta hai stock khatam.", "expect": "FOOD"},
-  {"text": "My father's old age pension stopped after March. Village Kheda, block Milak.", "expect": "WELFARE"},
-  {"text": "पड़ोसी जान से मारने की धमकी दे रहे हैं, थाने में एफआईआर नहीं लिखी जा रही।", "expect": "POLICE"},
-  {"text": "गांव का हैंडपंप दो हफ्ते से खराब है, पीने का पानी नहीं है।", "expect": "WATER"},
-  {"text": "MGNREGA ki mazdoori 40 din ki nahi mili, pradhan bolta hai paisa nahi aaya.", "expect": "RURAL"},
-  {"text": "PHC में डॉक्टर हफ्ते में सिर्फ एक दिन आते हैं, दवा भी नहीं मिलती।", "expect": "HEALTH"},
-  {"text": "Road from our village to the block office is full of potholes.", "expect": "ROADS"},
-  {"text": "हमारे खेत पर पड़ोसी ने कब्जा कर लिया है, लेखपाल पैमाइश नहीं कर रहे।", "expect": "REVENUE"},
-  {"text": "Mid day meal is not being given in the primary school for two weeks.", "expect": "EDUCATION"},
-  {"text": "Mere bete ka naam ration card mein add nahi hua, teen baar apply kiya.", "expect": "FOOD"},
-  {"text": "Widow pension ka paisa 5 mahine se khate mein nahi aaya.", "expect": "WELFARE"},
-  {"text": "Bijli ka bill bahut zyada aa raha hai, meter kharab lagta hai.", "expect": "POWER"},
-  {"text": "Ayushman card is not accepted at the district hospital.", "expect": "HEALTH"},
-  {"text": "PM Awas ki doosri kisht nahi mili, ghar aadha bana hai.", "expect": "RURAL"},
-  {"text": "Please look into my matter, nobody is listening at the office.", "expect": "OTHER"},
-  {"text": "मेरी समस्या का समाधान नहीं हुआ, कृपया देखें।", "expect": "OTHER"},
-  {"text": "गांव में दो दिन से बिजली नहीं है और पानी की टंकी भी खाली है।", "expect": "REVIEW"},
-  {"text": "Someone stole my buffalo last night and police is not filing FIR.", "expect": "POLICE"},
-  {"text": "Khatauni mein dakhil kharij ke baad galat naam chadh gaya hai.", "expect": "REVENUE"}
+  {
+    "text": "हमारे गांव का ट्रांसफार्मर 5 दिन से जला हुआ है, बिजली नहीं है। मेरा नंबर 9876543210 है।",
+    "expect": "POWER"
+  },
+  {
+    "text": "Kotedar ne is mahine ka ration nahi diya, bolta hai stock khatam.",
+    "expect": "FOOD"
+  },
+  {
+    "text": "My father's old age pension stopped after March. Village Kheda, block Milak.",
+    "expect": "WELFARE"
+  },
+  {
+    "text": "पड़ोसी जान से मारने की धमकी दे रहे हैं, थाने में एफआईआर नहीं लिखी जा रही।",
+    "expect": "POLICE"
+  },
+  {
+    "text": "गांव का हैंडपंप दो हफ्ते से खराब है, पीने का पानी नहीं है।",
+    "expect": "WATER"
+  },
+  {
+    "text": "MGNREGA ki mazdoori 40 din ki nahi mili, pradhan bolta hai paisa nahi aaya.",
+    "expect": "RURAL"
+  },
+  {
+    "text": "PHC में डॉक्टर हफ्ते में सिर्फ एक दिन आते हैं, दवा भी नहीं मिलती।",
+    "expect": "HEALTH"
+  },
+  {
+    "text": "Road from our village to the block office is full of potholes.",
+    "expect": "ROADS"
+  },
+  {
+    "text": "हमारे खेत पर पड़ोसी ने कब्जा कर लिया है, लेखपाल पैमाइश नहीं कर रहे।",
+    "expect": "REVENUE"
+  },
+  {
+    "text": "Mid day meal is not being given in the primary school for two weeks.",
+    "expect": "EDUCATION"
+  },
+  {
+    "text": "Mere bete ka naam ration card mein add nahi hua, teen baar apply kiya.",
+    "expect": "FOOD"
+  },
+  {
+    "text": "Widow pension ka paisa 5 mahine se khate mein nahi aaya.",
+    "expect": "WELFARE"
+  },
+  {
+    "text": "Bijli ka bill bahut zyada aa raha hai, meter kharab lagta hai.",
+    "expect": "POWER"
+  },
+  {
+    "text": "Ayushman card is not accepted at the district hospital.",
+    "expect": "HEALTH"
+  },
+  {
+    "text": "PM Awas ki doosri kisht nahi mili, ghar aadha bana hai.",
+    "expect": "RURAL"
+  },
+  {
+    "text": "Please look into my matter, nobody is listening at the office.",
+    "expect": "OTHER"
+  },
+  {
+    "text": "मेरी समस्या का समाधान नहीं हुआ, कृपया देखें।",
+    "expect": "OTHER"
+  },
+  {
+    "text": "गांव में दो दिन से बिजली नहीं है और पानी की टंकी भी खाली है।",
+    "expect": "JOINT:POWER,WATER"
+  },
+  {
+    "text": "Someone stole my buffalo last night and police is not filing FIR.",
+    "expect": "POLICE"
+  },
+  {
+    "text": "Khatauni mein dakhil kharij ke baad galat naam chadh gaya hai.",
+    "expect": "REVENUE"
+  },
+  {
+    "text": "Meri gali mein sewer overflow ho raha hai, isliye paani nahi aa raha, aur bijli bhi baar-baar ja rahi hai.",
+    "expect": "JOINT:MUNICIPAL,WATER,POWER"
+  },
+  {
+    "text": "Our street light is broken and the hand pump near it has also stopped working for a week.",
+    "expect": "JOINT:ROADS,WATER"
+  }
 ]
